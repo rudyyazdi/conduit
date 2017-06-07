@@ -20,6 +20,7 @@ defmodule Conduit.Mixfile do
       extra_applications: [
         :logger,
         :runtime_tools,
+        :eventstore,
       ],
     ]
   end
@@ -30,6 +31,8 @@ defmodule Conduit.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0"},
+      {:commanded, "~> 0.12"},
+      {:commanded_eventstore_adapter, "~> 0.1"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
