@@ -35,11 +35,11 @@ defmodule Conduit.Mixfile do
       {:cowboy, "~> 1.0"},
       {:exconstructor, "~> 1.1"},
       {:ex_machina, "~> 2.0", only: :test},
+      {:mix_test_watch, "~> 0.4", only: :dev, runtime: false},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, ">= 0.0.0"},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"}
       {:uuid, "~> 1.1"},
     ]
   end
