@@ -31,6 +31,7 @@ defmodule Conduit.Mixfile do
   defp deps do
     [
       {:commanded, "~> 0.12"},
+      {:commanded_ecto_projections, "~> 0.3"},
       {:commanded_eventstore_adapter, "~> 0.1"},
       {:cowboy, "~> 1.0"},
       {:exconstructor, "~> 1.1"},

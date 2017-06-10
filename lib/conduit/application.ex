@@ -1,14 +1,20 @@
 defmodule Conduit.Application do
   use Application
 
+  alias Conduit.Accounts
+
   def start(_type, _args) do
     import Supervisor.Spec
 
     children = [
       # Start the Ecto repository
       supervisor(Conduit.Repo, []),
+
       # Start the endpoint when the application starts
       supervisor(ConduitWeb.Endpoint, []),
+
+      # Read model projections
+      worker(Accounts.Projectors.User, [], id: :accounts_users_projector),
     ]
 
     opts = [strategy: :one_for_one, name: Conduit.Supervisor]
