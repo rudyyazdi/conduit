@@ -4,6 +4,7 @@ defmodule Conduit.Accounts do
   """
 
   alias Conduit.Accounts.Commands.RegisterUser
+  alias Conduit.Accounts.Queries.UserByUsername
   alias Conduit.Accounts.User
   alias Conduit.Repo
   alias Conduit.Router
@@ -23,6 +24,16 @@ defmodule Conduit.Accounts do
       :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
       reply -> reply
     end
+  end
+
+  @doc """
+  Get an existing user by their username, or return `nil` if not registered
+  """
+  def user_by_username(username) do
+    username
+    |> String.downcase()
+    |> UserByUsername.new()
+    |> Repo.one()
   end
 
   # generate a unique identity
