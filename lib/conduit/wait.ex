@@ -1,5 +1,5 @@
 defmodule Conduit.Wait do
-  @default_timeout 1_000
+  @default_timeout 5_000
   @default_retry_interval 50
 
   def until(fun), do: until(@default_timeout, fun)

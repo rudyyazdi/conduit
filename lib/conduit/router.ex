@@ -4,5 +4,7 @@ defmodule Conduit.Router do
   alias Conduit.Accounts.Aggregates.User
   alias Conduit.Accounts.Commands.RegisterUser
 
+  middleware Conduit.Validation.Middleware
+
   dispatch [RegisterUser], to: User, identity: :uuid
 end

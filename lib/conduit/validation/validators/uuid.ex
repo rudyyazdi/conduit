@@ -1,4 +1,4 @@
-defmodule Conduit.Validation.UuidValidator do
+defmodule Conduit.Validation.Validators.Uuid do
   use Vex.Validator
 
   def validate(value, _options) do

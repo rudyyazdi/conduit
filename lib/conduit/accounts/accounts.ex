@@ -21,6 +21,7 @@ defmodule Conduit.Accounts do
     |> Router.dispatch()
     |> case do
       :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
+      reply -> reply
     end
   end
 
