@@ -1,4 +1,4 @@
-defmodule Conduit.Validation.Middleware do
+defmodule Conduit.Validation.Middleware.Validate do
   @behaviour Commanded.Middleware
 
   alias Commanded.Middleware.Pipeline
@@ -19,14 +19,14 @@ defmodule Conduit.Validation.Middleware do
 
     pipeline
     |> respond({:error, :validation_failure, errors})
-    |> halt
+    |> halt()
   end
 
   defp merge_errors(errors) do
     errors
     |> Enum.group_by(
-      fn {_error, field, _type, message} -> field end,
-      fn {_error, field, _type, message} -> message end)
+      fn {_error, field, _type, _message} -> field end,
+      fn {_error, _field, _type, message} -> message end)
     |> Keyword.new()
   end
 end
