@@ -17,8 +17,9 @@ defmodule Conduit.Accounts do
     uuid = UUID.uuid4()
 
     attrs
-    |> assign_uuid(uuid)
     |> RegisterUser.new()
+    |> RegisterUser.assign_uuid(uuid)
+    |> RegisterUser.downcase_username()
     |> Router.dispatch()
     |> case do
       :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
@@ -35,7 +36,4 @@ defmodule Conduit.Accounts do
     |> UserByUsername.new()
     |> Repo.one()
   end
-
-  # generate a unique identity
-  defp assign_uuid(attrs, uuid), do: Map.put(attrs, :uuid, uuid)
 end
