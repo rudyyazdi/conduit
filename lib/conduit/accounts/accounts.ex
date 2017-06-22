@@ -21,6 +21,7 @@ defmodule Conduit.Accounts do
     |> RegisterUser.assign_uuid(uuid)
     |> RegisterUser.downcase_username()
     |> RegisterUser.downcase_email()
+    |> RegisterUser.hash_password()
     |> Router.dispatch()
     |> case do
       :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
