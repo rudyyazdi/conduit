@@ -48,4 +48,11 @@ defmodule Conduit.Accounts do
     |> UserByEmail.new()
     |> Repo.one()
   end
+
+  @doc """
+  Get a single user by their UUID
+  """
+  def user_by_uuid(uuid) when is_binary(uuid) do
+    Repo.get(User, uuid)
+  end
 end
