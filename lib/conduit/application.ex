@@ -18,6 +18,7 @@ defmodule Conduit.Application do
 
       # Read model projections
       worker(Accounts.Projectors.User, [], id: :accounts_users_projector),
+      worker(Blog.Projectors.Article, [], id: :blog_articles_projector),
 
       # Workflows
       worker(Blog.Workflows.CreateAuthorFromUser, [], id: :create_author_workflow),

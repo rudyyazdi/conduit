@@ -33,6 +33,8 @@ defmodule Conduit.Storage do
 """
 TRUNCATE TABLE
   accounts_users,
+  blog_articles,
+  blog_authors,
   projection_versions
 RESTART IDENTITY;
 """
