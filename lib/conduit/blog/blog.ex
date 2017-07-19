@@ -5,11 +5,9 @@ defmodule Conduit.Blog do
 
   alias Conduit.Accounts.User
   alias Conduit.Blog.{Article,Author}
-  alias Conduit.Blog.Commands.{CreateAuthor,PublishArticle}
+  alias Conduit.Blog.Commands.{CreateAuthor,FavoriteArticle,PublishArticle,UnfavoriteArticle}
   alias Conduit.Blog.Queries.{ArticleBySlug,ListArticles}
-  alias Conduit.Repo
-  alias Conduit.Router
-  alias Conduit.Wait
+  alias Conduit.{Repo,Router,Wait}
 
   @doc """
   Get the author for a given user account
@@ -58,6 +56,30 @@ defmodule Conduit.Blog do
     |> Router.dispatch()
     |> case do
       :ok -> Wait.until(fn -> Repo.get(Article, uuid) end)
+      reply -> reply
+    end
+  end
+
+  @doc """
+  Favorite the article for an author
+  """
+  def favorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
+    FavoriteArticle.new(article_uuid: article_uuid, favorited_by_author_uuid: author_uuid)
+    |> Router.dispatch()
+    |> case do
+      :ok -> {:ok, Repo.get(Article, article_uuid)}
+      reply -> reply
+    end
+  end
+
+  @doc """
+  Unfavorite the article for an author
+  """
+  def unfavorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
+    UnfavoriteArticle.new(article_uuid: article_uuid, unfavorited_by_author_uuid: author_uuid)
+    |> Router.dispatch()
+    |> case do
+      :ok -> {:ok, Repo.get(Article, article_uuid)}
       reply -> reply
     end
   end
