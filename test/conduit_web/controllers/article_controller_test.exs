@@ -102,7 +102,6 @@ defmodule ConduitWeb.ArticleControllerTest do
       :favorite_article,
     ]
 
-    @tag :wip
     @tag :web
     test "should return published articles by date published", %{conn: conn, user: user} do
       conn = get authenticated_conn(conn, user), article_path(conn, :index)
