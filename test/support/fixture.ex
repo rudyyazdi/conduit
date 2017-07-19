@@ -54,6 +54,14 @@ defmodule Conduit.Fixture do
     ]
   end
 
+  def favorite_article(%{articles: [article | _], author: author}) do
+    {:ok, article} = Blog.favorite_article(article, author)
+
+    [
+      article: article,
+    ]
+  end
+
   def wait_for_author(%{user: user}) do
     {:ok, author} = Wait.until(fn -> Repo.get_by(Author, user_uuid: user.uuid) end)
 

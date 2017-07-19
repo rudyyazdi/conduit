@@ -10,7 +10,13 @@ defmodule Conduit.Blog do
   alias Conduit.{Repo,Router,Wait}
 
   @doc """
-  Get the author for a given user account
+  Get the author for a given user account, or return `nil` if not found
+  """
+  def get_author(nil), do: nil
+  def get_author(%User{uuid: user_uuid}), do: Repo.get_by(Author, user_uuid: user_uuid)
+
+  @doc """
+  Get the author for a given user account, or raise an `Ecto.NoResultsError` if not found
   """
   def get_author!(%User{uuid: user_uuid}) do
     Repo.get_by!(Author, user_uuid: user_uuid)
@@ -21,9 +27,10 @@ defmodule Conduit.Blog do
 
   Provide tag, author or favorited query parameter to filter results.
   """
-  @spec list_articles(params :: map()) :: {articles :: list(Article.t), article_count :: non_neg_integer()}
-  def list_articles(params \\ %{}) do
-    ListArticles.paginate(params, Repo)
+  @spec list_articles(params :: map(), author :: Author.t) :: {articles :: list(Article.t), article_count :: non_neg_integer()}
+  def list_articles(params \\ %{}, author \\ nil)
+  def list_articles(params, author) do
+    ListArticles.paginate(params, author, Repo)
   end
 
   @doc """
@@ -65,8 +72,9 @@ defmodule Conduit.Blog do
   """
   def favorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
     with :ok <- Router.dispatch(FavoriteArticle.new(article_uuid: article_uuid, favorited_by_author_uuid: author_uuid)),
-         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) != nil end) do
-      {:ok, Repo.get(Article, article_uuid)}
+         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) != nil end),
+         article <- Repo.get(Article, article_uuid) do
+      {:ok, %Article{article | favorited: true}}
     else
       reply -> reply
     end
@@ -77,8 +85,9 @@ defmodule Conduit.Blog do
   """
   def unfavorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
     with :ok <- Router.dispatch(UnfavoriteArticle.new(article_uuid: article_uuid, unfavorited_by_author_uuid: author_uuid)),
-         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) == nil end) do
-      {:ok, Repo.get(Article, article_uuid)}
+         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) == nil end),
+         article <- Repo.get(Article, article_uuid) do
+      {:ok, %Article{article | favorited: false}}
     else
       reply -> reply
     end
