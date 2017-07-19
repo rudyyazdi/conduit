@@ -7,6 +7,7 @@ defmodule Conduit.Wait do
   def until(0, fun) do
     case fun.() do
       nil -> {:error, :timeout}
+      true -> :ok
       result -> {:ok, result}
     end
   end
@@ -16,7 +17,7 @@ defmodule Conduit.Wait do
       nil ->
         :timer.sleep(@default_retry_interval)
         until(max(0, timeout - @default_retry_interval), fun)
-
+      true -> :ok
       result -> {:ok, result}
     end
   end

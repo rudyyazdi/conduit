@@ -2,6 +2,8 @@ defmodule Conduit.Fixture do
   import Conduit.Factory
 
   alias Conduit.{Accounts,Blog}
+  alias Conduit.Blog.Author
+  alias Conduit.{Repo,Wait}
 
   def register_user(_context) do
     {:ok, user} = fixture(:user)
@@ -49,6 +51,14 @@ defmodule Conduit.Fixture do
 
     [
       article: article,
+    ]
+  end
+
+  def wait_for_author(%{user: user}) do
+    {:ok, author} = Wait.until(fn -> Repo.get_by(Author, user_uuid: user.uuid) end)
+
+    [
+      author: author,
     ]
   end
 

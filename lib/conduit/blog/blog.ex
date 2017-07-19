@@ -4,7 +4,7 @@ defmodule Conduit.Blog do
   """
 
   alias Conduit.Accounts.User
-  alias Conduit.Blog.{Article,Author}
+  alias Conduit.Blog.{Article,Author,FavoritedArticle}
   alias Conduit.Blog.Commands.{CreateAuthor,FavoriteArticle,PublishArticle,UnfavoriteArticle}
   alias Conduit.Blog.Queries.{ArticleBySlug,ListArticles}
   alias Conduit.{Repo,Router,Wait}
@@ -64,10 +64,10 @@ defmodule Conduit.Blog do
   Favorite the article for an author
   """
   def favorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
-    FavoriteArticle.new(article_uuid: article_uuid, favorited_by_author_uuid: author_uuid)
-    |> Router.dispatch()
-    |> case do
-      :ok -> {:ok, Repo.get(Article, article_uuid)}
+    with :ok <- Router.dispatch(FavoriteArticle.new(article_uuid: article_uuid, favorited_by_author_uuid: author_uuid)),
+         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) != nil end) do
+      {:ok, Repo.get(Article, article_uuid)}
+    else
       reply -> reply
     end
   end
@@ -76,10 +76,10 @@ defmodule Conduit.Blog do
   Unfavorite the article for an author
   """
   def unfavorite_article(%Article{uuid: article_uuid}, %Author{uuid: author_uuid}) do
-    UnfavoriteArticle.new(article_uuid: article_uuid, unfavorited_by_author_uuid: author_uuid)
-    |> Router.dispatch()
-    |> case do
-      :ok -> {:ok, Repo.get(Article, article_uuid)}
+    with :ok <- Router.dispatch(UnfavoriteArticle.new(article_uuid: article_uuid, unfavorited_by_author_uuid: author_uuid)),
+         :ok <- Wait.until(fn -> favorited_article(article_uuid, author_uuid) == nil end) do
+      {:ok, Repo.get(Article, article_uuid)}
+    else
       reply -> reply
     end
   end
@@ -98,5 +98,9 @@ defmodule Conduit.Blog do
     slug
     |> String.downcase()
     |> ArticleBySlug.new()
+  end
+
+  defp favorited_article(article_uuid, favorited_by_author_uuid) do
+    Repo.get_by(FavoritedArticle, article_uuid: article_uuid, favorited_by_author_uuid: favorited_by_author_uuid)
   end
 end

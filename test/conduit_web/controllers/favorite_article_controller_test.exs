@@ -10,6 +10,7 @@ defmodule ConduitWeb.FavoriteArticleControllerTest do
       :create_author,
       :publish_article,
       :register_user,
+      :wait_for_author,
     ]
 
     @tag :web
@@ -27,7 +28,7 @@ defmodule ConduitWeb.FavoriteArticleControllerTest do
         "tagList" => ["dragons", "training"],
         "createdAt" => created_at,
         "updatedAt" => updated_at,
-        "favorited" => false,
+        "favorited" => true,
         "favoritesCount" => 1,
         "author" => %{
           "username" => "jake",
@@ -44,10 +45,10 @@ defmodule ConduitWeb.FavoriteArticleControllerTest do
       :create_author,
       :publish_article,
       :register_user,
+      :wait_for_author,
       :favorite_article,
     ]
 
-    @tag :wip
     @tag :web
     test "should be unfavorited and return article", %{conn: conn, user: user} do
       conn = delete authenticated_conn(conn, user), favorite_article_path(conn, :delete, "how-to-train-your-dragon")
