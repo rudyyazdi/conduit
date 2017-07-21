@@ -4,9 +4,10 @@ defmodule Conduit.Router do
   alias Conduit.Accounts.Aggregates.User
   alias Conduit.Accounts.Commands.RegisterUser
 
-  alias Conduit.Blog.Aggregates.{Article,Author}
+  alias Conduit.Blog.Aggregates.{Article,Author,Comment}
   alias Conduit.Blog.Commands.{
     CreateAuthor,
+    CommentOnArticle,
     FavoriteArticle,
     PublishArticle,
     UnfavoriteArticle,
@@ -23,6 +24,8 @@ defmodule Conduit.Router do
   ], to: Article, identity: :article_uuid
 
   dispatch [CreateAuthor], to: Author, identity: :uuid
+
+  dispatch [CommentOnArticle], to: Comment, identity: :uuid
 
   dispatch [RegisterUser], to: User, identity: :uuid
 end

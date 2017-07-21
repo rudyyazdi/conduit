@@ -4,8 +4,8 @@ defmodule Conduit.Blog do
   """
 
   alias Conduit.Accounts.User
-  alias Conduit.Blog.{Article,Author,FavoritedArticle}
-  alias Conduit.Blog.Commands.{CreateAuthor,FavoriteArticle,PublishArticle,UnfavoriteArticle}
+  alias Conduit.Blog.{Article,Author,Comment,FavoritedArticle}
+  alias Conduit.Blog.Commands.{FavoriteArticle,CommentOnArticle,CreateAuthor,FavoriteArticle,PublishArticle,UnfavoriteArticle}
   alias Conduit.Blog.Queries.{ArticleBySlug,ListArticles,ListTags}
   alias Conduit.{Repo,Router,Wait}
 
@@ -96,6 +96,31 @@ defmodule Conduit.Blog do
          article <- Repo.get(Article, article_uuid) do
       {:ok, %Article{article | favorited: false}}
     else
+      reply -> reply
+    end
+  end
+
+  @doc """
+  Get comments from an article
+  """
+  def article_comments(%Article{uuid: article_uuid}) do
+    []
+  end
+
+  @doc """
+  Add a comment to an article
+  """
+  def comment_on_article(%Article{} = article, %User{} = author, attrs \\ %{}) do
+    uuid = UUID.uuid4()
+
+    attrs
+    |> CommentOnArticle.new()
+    |> CommentOnArticle.assign_uuid(uuid)
+    |> CommentOnArticle.assign_article(article)
+    |> CommentOnArticle.assign_author(author)
+    |> Router.dispatch()
+    |> case do
+      :ok -> Wait.until(fn -> Repo.get(Comment, uuid) end)
       reply -> reply
     end
   end
