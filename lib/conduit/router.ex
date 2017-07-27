@@ -8,6 +8,7 @@ defmodule Conduit.Router do
   alias Conduit.Blog.Commands.{
     CreateAuthor,
     CommentOnArticle,
+    DeleteComment,
     FavoriteArticle,
     PublishArticle,
     UnfavoriteArticle,
@@ -26,6 +27,8 @@ defmodule Conduit.Router do
   dispatch [CreateAuthor], to: Author, identity: :uuid
 
   dispatch [CommentOnArticle], to: Comment, identity: :uuid
+
+  dispatch [DeleteComment], to: Comment, identity: :comment_uuid, lifespan: Comment
 
   dispatch [RegisterUser], to: User, identity: :uuid
 end

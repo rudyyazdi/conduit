@@ -8,6 +8,7 @@ defmodule Conduit.Blog.Projectors.Article do
     ArticlePublished,
     ArticleUnfavorited,
     AuthorCreated,
+    CommentDeleted,
   }
   alias Conduit.Repo
 
@@ -63,6 +64,10 @@ defmodule Conduit.Blog.Projectors.Article do
     end)
   end
 
+  project %CommentDeleted{comment_uuid: comment_uuid} do
+    Ecto.Multi.delete_all(multi, :comment, comment_query(comment_uuid))
+  end
+
   @doc """
   Favorite article for the user and update the article's favorite count
   """
@@ -103,6 +108,10 @@ defmodule Conduit.Blog.Projectors.Article do
 
   defp article_query(article_uuid) do
     from(a in Article, where: a.uuid == ^article_uuid)
+  end
+
+  defp comment_query(comment_uuid) do
+    from(c in Comment, where: c.uuid == ^comment_uuid)
   end
 
   defp favorited_article_query(article_uuid, author_uuid) do

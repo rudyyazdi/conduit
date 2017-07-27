@@ -5,7 +5,7 @@ defmodule Conduit.Blog do
 
   alias Conduit.Accounts.User
   alias Conduit.Blog.{Article,Author,Comment,FavoritedArticle}
-  alias Conduit.Blog.Commands.{FavoriteArticle,CommentOnArticle,CreateAuthor,FavoriteArticle,PublishArticle,UnfavoriteArticle}
+  alias Conduit.Blog.Commands.{FavoriteArticle,CommentOnArticle,CreateAuthor,DeleteComment,FavoriteArticle,PublishArticle,UnfavoriteArticle}
   alias Conduit.Blog.Queries.{ArticleBySlug,ArticleComments,ListArticles,ListTags}
   alias Conduit.{Repo,Router,Wait}
 
@@ -25,13 +25,37 @@ defmodule Conduit.Blog do
   @doc """
   Returns most recent articles globally by default.
 
-  Provide tag, author or favorited query parameter to filter results.
+  Provide tag, author, or favorited query parameter to filter results.
   """
   @spec list_articles(params :: map(), author :: Author.t) :: {articles :: list(Article.t), article_count :: non_neg_integer()}
   def list_articles(params \\ %{}, author \\ nil)
   def list_articles(params, author) do
     ListArticles.paginate(params, author, Repo)
   end
+
+  @doc """
+  Get an article by its URL slug, or return `nil` if not found
+  """
+  def article_by_slug(slug), do: article_by_slug_query(slug) |> Repo.one()
+
+  @doc """
+  Get an article by its URL slug, or raise an `Ecto.NoResultsError` if not found
+  """
+  def article_by_slug!(slug), do: article_by_slug_query(slug) |> Repo.one!()
+
+  @doc """
+  Get comments from an article
+  """
+  def article_comments(%Article{uuid: article_uuid}) do
+    article_uuid
+    |> ArticleComments.new()
+    |> Repo.all()
+  end
+
+  @doc """
+  Get a comment by its UUID, or raise an `Ecto.NoResultsError` if not found
+  """
+  def get_comment!(comment_uuid), do: Repo.get!(Comment, comment_uuid)
 
   @doc """
   List all tags
@@ -101,15 +125,6 @@ defmodule Conduit.Blog do
   end
 
   @doc """
-  Get comments from an article
-  """
-  def article_comments(%Article{uuid: article_uuid}) do
-    article_uuid
-    |> ArticleComments.new()
-    |> Repo.all()
-  end
-
-  @doc """
   Add a comment to an article
   """
   def comment_on_article(%Article{} = article, %Author{} = author, attrs \\ %{}) do
@@ -128,14 +143,14 @@ defmodule Conduit.Blog do
   end
 
   @doc """
-  Get an article by its URL slug, or return `nil` if not found
+  Delete a comment made by the user. Returns `:ok` on success
   """
-  def article_by_slug(slug), do: article_by_slug_query(slug) |> Repo.one()
-
-  @doc """
-  Get an article by its URL slug, or raise an `Ecto.NoResultsError` if not found
-  """
-  def article_by_slug!(slug), do: article_by_slug_query(slug) |> Repo.one!()
+  def delete_comment(%Comment{} = comment, %Author{} = author) do
+    %DeleteComment{}
+    |> DeleteComment.assign_comment(comment)
+    |> DeleteComment.deleted_by(author)
+    |> Router.dispatch()
+  end
 
   defp article_by_slug_query(slug) do
     slug

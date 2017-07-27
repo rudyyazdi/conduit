@@ -16,10 +16,21 @@ defmodule ConduitWeb.CommentController do
   end
 
   def create(%{assigns: %{article: article}} = conn, %{"comment" => comment_params}, user, _claims) do
-    with {:ok, %Comment{} = comment} <- Blog.comment_on_article(article, user, comment_params) do
+    author = Blog.get_author!(user)
+
+    with {:ok, %Comment{} = comment} <- Blog.comment_on_article(article, author, comment_params) do
       conn
       |> put_status(:created)
       |> render("show.json", comment: comment)
+    end
+  end
+
+  def delete(conn, %{"uuid" => comment_uuid}, user, _claims) do
+    author = Blog.get_author!(user)
+    comment = Blog.get_comment!(comment_uuid)
+
+    with :ok <- Blog.delete_comment(comment, author) do
+      send_resp(conn, :no_content, "")
     end
   end
 end

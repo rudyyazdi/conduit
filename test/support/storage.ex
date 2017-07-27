@@ -35,6 +35,7 @@ TRUNCATE TABLE
   accounts_users,
   blog_articles,
   blog_authors,
+  blog_comments,
   blog_favorited_articles,
   blog_tags,
   projection_versions

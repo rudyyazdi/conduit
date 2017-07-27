@@ -70,8 +70,8 @@ defmodule Conduit.Fixture do
     ]
   end
 
-  def comment_on_article(%{article: article, user: user}) do
-    {:ok, comment} = fixture(:comment, article: article, author: user)
+  def comment_on_article(%{article: article, author: author}) do
+    {:ok, comment} = fixture(:comment, article: article, author: author)
 
     [
       comment: comment,
