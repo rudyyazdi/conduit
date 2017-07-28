@@ -8,6 +8,14 @@ This is the full source code to accompany the "[Building Conduit](https://leanpu
 
 This book is for anyone who has an interest in CQRS/ES and Elixir. It demonstrates step-by-step how to build an Elixir application implementing the CQRS/ES pattern using the [Commanded](https://github.com/slashdotdash/commanded) open source library.
 
+---
+
+MIT License
+
+[![Build Status](https://travis-ci.org/slashdotdash/conduit.svg?branch=master)](https://travis-ci.org/slashdotdash/conduit
+
+---
+
 ## Getting started
 
 Conduit is an Elixir 1.5 application using Phoenix 1.3 and PostgreSQL for persistence.
@@ -16,7 +24,8 @@ Conduit is an Elixir 1.5 application using Phoenix 1.3 and PostgreSQL for persis
 
 You must install the following dependencies before starting:
 
-- [Elixir](https://elixir-lang.org/install.html) (v1.4 or later).
+- [Git](https://git-scm.com/).
+- [Elixir](https://elixir-lang.org/install.html) (v1.5 or later).
 - [PostgreSQL](https://www.postgresql.org/) database (v9.5 or later).
 
 ### Configuring Conduit
@@ -24,32 +33,32 @@ You must install the following dependencies before starting:
 1. Clone the Git repo from GitHub:
 
     ```console
-    git clone https://github.com/slashdotdash/conduit.git
+    $ git clone https://github.com/slashdotdash/conduit.git
     ```
 
 2. Install mix dependencies:
 
     ```console
-    cd conduit
-    mix deps.get
+    $ cd conduit
+    $ mix deps.get
     ```
 
 3. Create the event store database:
 
     ```console
-    mix event_store.create
+    $ mix event_store.create
     ```
 
 4. Create the read model store database:
 
     ```console
-    mix do ecto.create, ecto.migrate
+    $ mix do ecto.create, ecto.migrate
     ```
 
 5. Run the Phoenix server:
 
     ```console
-    mix phx.server
+    $ mix phx.server
     ```
 
   This will start the web server on localhost, port 4000: [http://0.0.0.0:4000](http://0.0.0.0:4000)
