@@ -10,7 +10,7 @@ This book is for anyone who has an interest in CQRS/ES and Elixir. It demonstrat
 
 ## Getting started
 
-Conduit is an Elixir 1.4 application using Phoenix 1.3 and PostgreSQL for persistence.
+Conduit is an Elixir 1.5 application using Phoenix 1.3 and PostgreSQL for persistence.
 
 ### Prerequisites
 
