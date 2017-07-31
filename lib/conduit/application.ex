@@ -1,7 +1,7 @@
 defmodule Conduit.Application do
   use Application
 
-  alias Conduit.Accounts
+  alias Conduit.{Accounts,Blog}
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -18,6 +18,9 @@ defmodule Conduit.Application do
 
       # Read model projections
       worker(Accounts.Projectors.User, [], id: :accounts_users_projector),
+
+      # Workflows
+      worker(Blog.Workflows.CreateAuthorFromUser, [], id: :create_author_workflow),
     ]
 
     opts = [strategy: :one_for_one, name: Conduit.Supervisor]
