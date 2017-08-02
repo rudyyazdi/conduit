@@ -10,8 +10,10 @@ defmodule Conduit.Router do
     CommentOnArticle,
     DeleteComment,
     FavoriteArticle,
+    FollowAuthor,
     PublishArticle,
     UnfavoriteArticle,
+    UnfollowAuthor,
   }
 
   middleware Conduit.Validation.Middleware.Validate
@@ -25,6 +27,11 @@ defmodule Conduit.Router do
   ], to: Article, identity: :article_uuid
 
   dispatch [CreateAuthor], to: Author, identity: :uuid
+
+  dispatch [
+    FollowAuthor,
+    UnfollowAuthor,
+  ], to: Author, identity: :author_uuid
 
   dispatch [CommentOnArticle], to: Comment, identity: :uuid
 
