@@ -12,20 +12,27 @@ defmodule Conduit.Blog do
   @doc """
   Get the author for a given user account, or return `nil` if not found
   """
+  def get_author(user)
   def get_author(nil), do: nil
   def get_author(%User{uuid: user_uuid}), do: Repo.get_by(Author, user_uuid: user_uuid)
 
   @doc """
   Get the author for a given user account, or raise an `Ecto.NoResultsError` if not found
   """
-  def get_author!(%User{uuid: user_uuid}) do
-    Repo.get_by!(Author, user_uuid: user_uuid)
-  end
+  def get_author!(%User{uuid: user_uuid}), do: Repo.get_by!(Author, user_uuid: user_uuid)
 
   @doc """
   Get an author by their username, or raise an `Ecto.NoResultsError` if not found
   """
-  def author_by_username!(username), do: Repo.get_by!(Author, username: username)
+  def author_by_username!(username, follower \\ nil)
+  def author_by_username!(username, nil), do: Repo.get_by!(Author, username: username)
+  def author_by_username!(username, follower) do
+    author = author_by_username!(username)
+
+    %Author{author |
+      following: Enum.member?(author.followers, follower.uuid),
+    }
+  end
 
   @doc """
   Returns most recent articles globally by default.

@@ -8,6 +8,8 @@ defmodule Conduit.Blog.Projectors.Article do
     ArticlePublished,
     ArticleUnfavorited,
     AuthorCreated,
+    AuthorFollowed,
+    AuthorUnfollowed,
     CommentDeleted,
   }
   alias Conduit.Repo
@@ -20,6 +22,18 @@ defmodule Conduit.Blog.Projectors.Article do
       bio: nil,
       image: nil,
     })
+  end
+
+  project %AuthorFollowed{author_uuid: author_uuid, followed_by_author_uuid: follower_uuid} do
+    Ecto.Multi.update_all(multi, :author, author_query(author_uuid), push: [
+      followers: follower_uuid,
+    ])
+  end
+
+  project %AuthorUnfollowed{author_uuid: author_uuid, unfollowed_by_author_uuid: follower_uuid} do
+    Ecto.Multi.update_all(multi, :author, author_query(author_uuid), pull: [
+      followers: follower_uuid,
+    ])
   end
 
   project %ArticlePublished{} = published, %{created_at: published_at} do
@@ -104,6 +118,10 @@ defmodule Conduit.Blog.Projectors.Article do
       nil -> {:error, :author_not_found}
       author -> {:ok, author}
     end
+  end
+
+  defp author_query(author_uuid) do
+    from(a in Author, where: a.uuid == ^author_uuid)
   end
 
   defp article_query(article_uuid) do

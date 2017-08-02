@@ -2,6 +2,8 @@ defmodule ConduitWeb.ProfileControllerTest do
   use ConduitWeb.ConnCase
 
   alias Conduit.Blog
+  alias Conduit.Blog.Author
+  alias Conduit.{Repo,Wait}
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -69,6 +71,30 @@ defmodule ConduitWeb.ProfileControllerTest do
           "bio" => nil,
           "image" => nil,
           "following" => false,
+        }
+      }
+    end
+  end
+
+  describe "get followed author profile" do
+    setup [
+      :register_user,
+      :wait_for_author,
+      :create_author_to_follow,
+      :follow_author,
+    ]
+
+    @tag :web
+    test "should return author profile", %{conn: conn, user: user} do
+      conn = get authenticated_conn(conn, user), profile_path(conn, :show, "jane")
+      json = json_response(conn, 200)
+
+      assert json == %{
+        "profile" => %{
+          "username" => "jane",
+          "bio" => nil,
+          "image" => nil,
+          "following" => true,
         }
       }
     end
