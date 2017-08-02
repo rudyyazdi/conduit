@@ -37,6 +37,7 @@ TRUNCATE TABLE
   blog_authors,
   blog_comments,
   blog_favorited_articles,
+  blog_feed_articles,
   blog_tags,
   projection_versions
 RESTART IDENTITY;

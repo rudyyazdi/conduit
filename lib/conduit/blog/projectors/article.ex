@@ -1,7 +1,7 @@
 defmodule Conduit.Blog.Projectors.Article do
   use Commanded.Projections.Ecto, name: "Blog.Projectors.Article"
 
-  alias Conduit.Blog.{Author,Article,Comment,FavoritedArticle}
+  alias Conduit.Blog.{Author,Article,Feed,Comment,FavoritedArticle}
   alias Conduit.Blog.Events.{
     ArticleCommented,
     ArticleFavorited,
@@ -25,15 +25,21 @@ defmodule Conduit.Blog.Projectors.Article do
   end
 
   project %AuthorFollowed{author_uuid: author_uuid, followed_by_author_uuid: follower_uuid} do
-    Ecto.Multi.update_all(multi, :author, author_query(author_uuid), push: [
+    multi
+    |> Ecto.Multi.update_all(:author, author_query(author_uuid), push: [
       followers: follower_uuid,
     ])
+    |> Ecto.Multi.run(:feed, fn _changes ->
+      copy_author_articles_into_feed(author_uuid, follower_uuid)
+    end)
   end
 
   project %AuthorUnfollowed{author_uuid: author_uuid, unfollowed_by_author_uuid: follower_uuid} do
-    Ecto.Multi.update_all(multi, :author, author_query(author_uuid), pull: [
+    multi
+    |> Ecto.Multi.update_all(:author, author_query(author_uuid), pull: [
       followers: follower_uuid,
     ])
+    |> Ecto.Multi.delete_all(:feed, author_follower_feed_query(author_uuid, follower_uuid))
   end
 
   project %ArticlePublished{} = published, %{created_at: published_at} do
@@ -56,6 +62,19 @@ defmodule Conduit.Blog.Projectors.Article do
       }
 
       Repo.insert(article)
+    end)
+    |> Ecto.Multi.run(:feed, fn %{author: author} ->
+      feed = %Feed{
+        article_uuid: published.uuid,
+        author_uuid: author.uuid,
+        published_at: published_at,
+      }
+
+      for follower <- author.followers do
+        Repo.insert(%Feed{feed | follower_uuid: follower})
+      end
+
+      {:ok, author}
     end)
   end
 
@@ -134,5 +153,26 @@ defmodule Conduit.Blog.Projectors.Article do
 
   defp favorited_article_query(article_uuid, author_uuid) do
     from(f in FavoritedArticle, where: f.article_uuid == ^article_uuid and f.favorited_by_author_uuid == ^author_uuid)
+  end
+
+  defp author_follower_feed_query(author_uuid, follower_uuid) do
+    from(f in Feed, where: f.author_uuid == ^author_uuid and f.follower_uuid == ^follower_uuid)
+  end
+
+  # Copy the articles published by the author into the follower's feed
+  defp copy_author_articles_into_feed(author_uuid, follower_uuid) do
+    {:ok, author} = Ecto.UUID.dump(author_uuid)
+    {:ok, follower} = Ecto.UUID.dump(follower_uuid)
+
+    query("""
+      INSERT INTO blog_feed_articles (article_uuid, follower_uuid, author_uuid, published_at, inserted_at, updated_at)
+      SELECT uuid, $1, author_uuid, published_at, inserted_at, updated_at
+      FROM blog_articles
+      WHERE author_uuid = $2;
+      """, [follower, author])
+  end
+
+  defp query(sql, values) do
+    Ecto.Adapters.SQL.query(Repo, sql, values)
   end
 end
