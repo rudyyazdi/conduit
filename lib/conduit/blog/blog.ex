@@ -23,6 +23,11 @@ defmodule Conduit.Blog do
   end
 
   @doc """
+  Get an author by their username, or raise an `Ecto.NoResultsError` if not found
+  """
+  def author_by_username!(username), do: Repo.get_by!(Author, username: username)
+
+  @doc """
   Returns most recent articles globally by default.
 
   Provide tag, author, or favorited query parameter to filter results.
