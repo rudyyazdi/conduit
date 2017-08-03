@@ -24,26 +24,24 @@ defmodule Conduit.Accounts do
     |> RegisterUser.hash_password()
     |> Router.dispatch()
     |> case do
-      :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
+      :ok -> Wait.until(fn -> user_by_uuid(uuid) end)
       reply -> reply
     end
   end
 
   @doc """
-  Update the email, username, or password of a user.
+  Update the email, username, and/or password of a user.
   """
   def update_user(%User{uuid: user_uuid} = user, attrs \\ %{}) do
-    uuid = UUID.uuid4()
-
     attrs
     |> UpdateUser.new()
     |> UpdateUser.assign_user(user)
     |> UpdateUser.downcase_username()
     |> UpdateUser.downcase_email()
     |> UpdateUser.hash_password()
-    |> Router.dispatch()
+    |> Router.dispatch(include_aggregate_version: true)
     |> case do
-      :ok -> Wait.until(fn -> Repo.get(User, uuid) end)
+      {:ok, version} -> wait_for_user_version(user_uuid, version)
       reply -> reply
     end
   end
@@ -73,5 +71,15 @@ defmodule Conduit.Accounts do
   """
   def user_by_uuid(uuid) when is_binary(uuid) do
     Repo.get(User, uuid)
+  end
+
+  # Wait until the user read model is updated to the given version
+  defp wait_for_user_version(user_uuid, version) do
+    with :ok <- Wait.until(fn -> user_by_uuid(user_uuid).user_version == version end),
+         user <- user_by_uuid(user_uuid) do
+      {:ok, user}
+    else
+      reply -> reply
+    end
   end
 end

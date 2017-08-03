@@ -101,6 +101,13 @@ defmodule Conduit.Blog do
   end
 
   @doc """
+  Update the profile (bio, image) of the author
+  """
+  def update_author_profile(%Author{} = author, attrs \\ %{}) do
+    {:ok, author}
+  end
+
+  @doc """
   Follow an author
   """
   def follow_author(%Author{uuid: author_uuid} = author, %Author{uuid: follower_uuid}) do
