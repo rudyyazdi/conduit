@@ -2,7 +2,10 @@ defmodule Conduit.Router do
   use Commanded.Commands.Router
 
   alias Conduit.Accounts.Aggregates.User
-  alias Conduit.Accounts.Commands.RegisterUser
+  alias Conduit.Accounts.Commands.{
+    RegisterUser,
+    UpdateUser,
+  }
 
   alias Conduit.Blog.Aggregates.{Article,Author,Comment}
   alias Conduit.Blog.Commands.{
@@ -38,4 +41,6 @@ defmodule Conduit.Router do
   dispatch [DeleteComment], to: Comment, identity: :comment_uuid, lifespan: Comment
 
   dispatch [RegisterUser], to: User, identity: :uuid
+
+  dispatch [UpdateUser], to: User, identity: :user_uuid
 end

@@ -11,6 +11,7 @@ defmodule Conduit.Accounts.Commands.RegisterUser do
   use Vex.Struct
 
   alias Conduit.Accounts.Commands.RegisterUser
+  alias Conduit.Accounts.Validators.{UniqueEmail,UniqueUsername}
   alias Conduit.Auth
 
   validates :uuid, uuid: true
@@ -19,13 +20,13 @@ defmodule Conduit.Accounts.Commands.RegisterUser do
     presence: [message: "can't be empty"],
     format: [with: ~r/^[a-z0-9]+$/, allow_nil: true, allow_blank: true, message: "is invalid"],
     string: true,
-    unique_username: true
+    by: &UniqueUsername.validate/2
 
   validates :email,
     presence: [message: "can't be empty"],
     format: [with: ~r/\S+@\S+\.\S+/, allow_nil: true, allow_blank: true, message: "is invalid"],
     string: true,
-    unique_email: true
+    by: &UniqueEmail.validate/2
 
   validates :hashed_password, presence: [message: "can't be empty"], string: true
 
@@ -62,8 +63,8 @@ defmodule Conduit.Accounts.Commands.RegisterUser do
 end
 
 defimpl Conduit.Validation.Middleware.Uniqueness.UniqueFields, for: Conduit.Accounts.Commands.RegisterUser do
-  def unique(_command), do: [
-    {:email, "has already been taken"},
-    {:username, "has already been taken"},
+  def unique(%Conduit.Accounts.Commands.RegisterUser{uuid: uuid}), do: [
+    {:email, "has already been taken", uuid},
+    {:username, "has already been taken", uuid},
   ]
 end
