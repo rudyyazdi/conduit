@@ -4,27 +4,27 @@ defmodule Conduit.Accounts do
   """
 
   alias Conduit.Accounts.Commands.{RegisterUser,UpdateUser}
+  alias Conduit.Accounts.Notifications
   alias Conduit.Accounts.Queries.{UserByUsername,UserByEmail}
   alias Conduit.Accounts.User
-  alias Conduit.Repo
-  alias Conduit.Router
-  alias Conduit.Wait
+  alias Conduit.{Repo,Router}
 
   @doc """
   Register a new user.
   """
   def register_user(attrs \\ %{}) do
-    uuid = UUID.uuid4()
+    user_uuid = UUID.uuid4()
+    register_user =
+      attrs
+      |> RegisterUser.new()
+      |> RegisterUser.assign_uuid(user_uuid)
+      |> RegisterUser.downcase_username()
+      |> RegisterUser.downcase_email()
+      |> RegisterUser.hash_password()
 
-    attrs
-    |> RegisterUser.new()
-    |> RegisterUser.assign_uuid(uuid)
-    |> RegisterUser.downcase_username()
-    |> RegisterUser.downcase_email()
-    |> RegisterUser.hash_password()
-    |> Router.dispatch()
-    |> case do
-      :ok -> Wait.until(fn -> user_by_uuid(uuid) end)
+    with {:ok, version} <- Router.dispatch(register_user, include_aggregate_version: true) do
+      Notifications.wait_for(User, user_uuid, version)
+    else
       reply -> reply
     end
   end
@@ -33,15 +33,17 @@ defmodule Conduit.Accounts do
   Update the email, username, and/or password of a user.
   """
   def update_user(%User{uuid: user_uuid} = user, attrs \\ %{}) do
-    attrs
-    |> UpdateUser.new()
-    |> UpdateUser.assign_user(user)
-    |> UpdateUser.downcase_username()
-    |> UpdateUser.downcase_email()
-    |> UpdateUser.hash_password()
-    |> Router.dispatch(include_aggregate_version: true)
-    |> case do
-      {:ok, version} -> wait_for_user_version(user_uuid, version)
+    update_user =
+      attrs
+      |> UpdateUser.new()
+      |> UpdateUser.assign_user(user)
+      |> UpdateUser.downcase_username()
+      |> UpdateUser.downcase_email()
+      |> UpdateUser.hash_password()
+
+    with {:ok, version} <- Router.dispatch(update_user, include_aggregate_version: true) do
+      Notifications.wait_for(User, user_uuid, version)
+    else
       reply -> reply
     end
   end
@@ -71,15 +73,5 @@ defmodule Conduit.Accounts do
   """
   def user_by_uuid(uuid) when is_binary(uuid) do
     Repo.get(User, uuid)
-  end
-
-  # Wait until the user read model is updated to the given version
-  defp wait_for_user_version(user_uuid, version) do
-    with :ok <- Wait.until(fn -> user_by_uuid(user_uuid).user_version == version end),
-         user <- user_by_uuid(user_uuid) do
-      {:ok, user}
-    else
-      reply -> reply
-    end
   end
 end

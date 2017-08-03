@@ -4,7 +4,7 @@ defmodule Conduit.Repo.Migrations.CreateConduit.Accounts.User do
   def change do
     create table(:accounts_users, primary_key: false) do
       add :uuid, :uuid, primary_key: true
-      add :user_version, :integer, default: 0
+      add :version, :integer, default: 0
       add :username, :string
       add :email, :string
       add :hashed_password, :string
@@ -12,6 +12,7 @@ defmodule Conduit.Repo.Migrations.CreateConduit.Accounts.User do
       timestamps()
     end
 
+    create unique_index(:accounts_users, [:uuid, :version])
     create unique_index(:accounts_users, [:username])
     create unique_index(:accounts_users, [:email])
   end

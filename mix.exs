@@ -33,7 +33,7 @@ defmodule Conduit.Mixfile do
       {:comeonin, "~> 3.1"},
       # {:commanded, "~> 0.12"},
       {:commanded, path: "~/src/commanded", override: true},
-      {:commanded_ecto_projections, "~> 0.3"},
+      {:commanded_ecto_projections, "~> 0.4"},
       {:commanded_eventstore_adapter, "~> 0.1"},
       {:cors_plug, "~> 1.4"},
       {:cowboy, "~> 1.0"},

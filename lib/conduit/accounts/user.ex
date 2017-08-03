@@ -4,7 +4,7 @@ defmodule Conduit.Accounts.User do
   @primary_key {:uuid, :binary_id, autogenerate: false}
 
   schema "accounts_users" do
-    field :user_version, :integer, default: 0
+    field :version, :integer, default: 0
     field :username, :string, unique: true
     field :email, :string, unique: true
     field :hashed_password, :string

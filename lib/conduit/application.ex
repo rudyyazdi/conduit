@@ -13,11 +13,13 @@ defmodule Conduit.Application do
       # Start the endpoint when the application starts
       supervisor(ConduitWeb.Endpoint, []),
 
+      # Accounts context
+      supervisor(Conduit.Accounts.Supervisor, []),
+
       # Enforce unique constraints
       worker(Conduit.Validation.Unique, []),
 
       # Read model projections
-      worker(Accounts.Projectors.User, [], id: :accounts_users_projector),
       worker(Blog.Projectors.Article, [], id: :blog_articles_projector),
       worker(Blog.Projectors.Tag, [], id: :blog_tags_projector),
 

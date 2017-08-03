@@ -8,11 +8,12 @@ defmodule Conduit.Accounts.Projectors.User do
     UserRegistered,
   }
   alias Conduit.Accounts.User
+  alias Conduit.Accounts.Notifications
 
-  project %UserRegistered{} = registered, %{stream_version: user_version} do
+  project %UserRegistered{} = registered, %{stream_version: version} do
     Ecto.Multi.insert(multi, :user, %User{
       uuid: registered.uuid,
-      user_version: user_version,
+      version: version,
       username: registered.username,
       email: registered.email,
       hashed_password: registered.hashed_password,
@@ -31,10 +32,12 @@ defmodule Conduit.Accounts.Projectors.User do
     update_user(multi, user_uuid, metadata, hashed_password: hashed_password)
   end
 
+  def after_update(_event, _metadata, changes), do: Notifications.publish_changes(changes)
+
   defp update_user(multi, user_uuid, metadata, changes) do
-    Ecto.Multi.update_all(multi, :user, user_query(user_uuid), set: changes ++ [
-      user_version: metadata.stream_version,
-    ])
+    Ecto.Multi.update_all(multi, :user, user_query(user_uuid), [
+      set: changes ++ [version: metadata.stream_version]
+    ], returning: true)
   end
 
   defp user_query(user_uuid) do
