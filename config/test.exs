@@ -12,6 +12,9 @@ config :logger, level: :warn
 config :ex_unit,
   capture_log: true
 
+config :commanded, registry: :local
+config :eventstore, registry: :local
+
 # Configure the event store database
 config :eventstore, EventStore.Storage,
   serializer: Commanded.Serialization.JsonSerializer,
