@@ -20,6 +20,7 @@ defmodule Conduit.Mixfile do
       extra_applications: [
         :logger,
         :runtime_tools,
+        :swarm,
         :eventstore,
       ],
     ]
@@ -31,9 +32,11 @@ defmodule Conduit.Mixfile do
   defp deps do
     [
       {:comeonin, "~> 3.1"},
-      {:commanded, "~> 0.13"},
+      {:commanded, github: "slashdotdash/commanded", branch: "feature/cluster", override: true},
       {:commanded_ecto_projections, "~> 0.5"},
       {:commanded_eventstore_adapter, "~> 0.1"},
+      {:commanded_swarm_registry, github: "commanded/commanded-swarm-registry", branch: "master"},
+      {:eventstore, "~> 0.11.0-rc.0", override: true},
       {:cors_plug, "~> 1.4"},
       {:cowboy, "~> 1.0"},
       {:exconstructor, "~> 1.1"},
@@ -45,6 +48,7 @@ defmodule Conduit.Mixfile do
       {:phoenix_ecto, "~> 3.2"},
       {:postgrex, ">= 0.0.0"},
       {:slugger, "~> 0.2"},
+      {:swarm, github: "slashdotdash/swarm", branch: "feature/no_node_available", override: true},
       {:uuid, "~> 1.1"},
       {:vex, "~> 0.6"},
     ]

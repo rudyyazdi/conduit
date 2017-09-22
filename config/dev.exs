@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :conduit, ConduitWeb.Endpoint,
-  http: [port: 4000],
+  http: [port: System.get_env("PORT") || 4000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
@@ -36,6 +36,12 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
+config :commanded,
+  registry: Commanded.Registration.SwarmRegistry
+
+config :eventstore,
+  registry: :distributed
+
 # Configure the event store database
 config :eventstore, EventStore.Storage,
   serializer: Commanded.Serialization.JsonSerializer,
@@ -53,3 +59,11 @@ config :conduit, Conduit.Repo,
   database: "conduit_readstore_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :swarm,
+  nodes: [:"node1@127.0.0.1", :"node2@127.0.0.1", :"node3@127.0.0.1"],
+  node_blacklist: [~r/^primary@.+$/],
+  distribution_strategy: Swarm.Distribution.StaticQuorumRing,
+  static_quorum_size: 2,
+  sync_nodes_timeout: 0,
+  debug: false
