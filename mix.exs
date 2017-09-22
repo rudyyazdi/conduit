@@ -32,7 +32,7 @@ defmodule Conduit.Mixfile do
     [
       {:comeonin, "~> 3.1"},
       {:commanded, "~> 0.13"},
-      {:commanded_ecto_projections, "~> 0.4"},
+      {:commanded_ecto_projections, "~> 0.5"},
       {:commanded_eventstore_adapter, "~> 0.1"},
       {:cors_plug, "~> 1.4"},
       {:cowboy, "~> 1.0"},
@@ -54,7 +54,7 @@ defmodule Conduit.Mixfile do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "test": ["ecto.create --quiet", "ecto.migrate", "test"],
+      "test":       ["ecto.create --quiet", "ecto.migrate", "test"],
     ]
   end
 end
