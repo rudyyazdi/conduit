@@ -43,6 +43,7 @@ defmodule Conduit.Mixfile do
       {:ex_machina, "~> 2.0", only: :test},
       {:gettext, "~> 0.11"},
       {:guardian, "~> 0.14"},
+      {:libcluster, "~> 2.2"},
       {:mix_test_watch, "~> 0.4", only: :dev, runtime: false},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.2"},

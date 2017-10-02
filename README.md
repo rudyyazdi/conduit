@@ -80,6 +80,20 @@ Any of these front-ends should integrate with the Conduit back-end due to their 
 To run Conduit on a cluster you need to start three terminals and run the following commands on each:
 
 ```console
+$ PORT=4000 iex --name node1@127.0.0.1 -S mix phx.server
+```
+
+```console
+$ PORT=4001 iex --name node2@127.0.0.1 -S mix phx.server
+```
+
+```console
+$ PORT=4002 iex --name node3@127.0.0.1 -S mix phx.server
+```
+
+Or you can use the Erlang `sys.config` files to start each node. This approach will block node start up until all nodes have connected to each other (or the 30 second timeout has elapsed):
+
+```console
 $ PORT=4000 iex --name node1@127.0.0.1 --erl "-config cluster/node1.sys.config" -S mix phx.server
 ```
 
