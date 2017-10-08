@@ -60,13 +60,13 @@ config :conduit, Conduit.Repo,
   hostname: "localhost",
   pool_size: 10
 
-config :libcluster,
-  topologies: [
-    conduit: [
-      strategy: Cluster.Strategy.Epmd,
-      config: [hosts: [:"node1@127.0.0.1", :"node2@127.0.0.1", :"node3@127.0.0.1"]],
-    ]
-  ]
+# config :libcluster,
+#   topologies: [
+#     conduit: [
+#       strategy: Cluster.Strategy.Epmd,
+#       config: [hosts: [:"node1@127.0.0.1", :"node2@127.0.0.1", :"node3@127.0.0.1"]],
+#     ]
+#   ]
 
 config :swarm,
   nodes: [:"node1@127.0.0.1", :"node2@127.0.0.1", :"node3@127.0.0.1"],
