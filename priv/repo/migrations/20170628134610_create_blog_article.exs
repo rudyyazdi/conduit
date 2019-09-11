@@ -4,7 +4,7 @@ defmodule Conduit.Repo.Migrations.CreateConduit.Blog.Article do
   def change do
     create table(:blog_articles, primary_key: false) do
       add(:uuid, :uuid, primary_key: true)
-      add(:slug, :text)
+      add(:slug, :string)
       add(:title, :text)
       add(:description, :text)
       add(:body, :text)
